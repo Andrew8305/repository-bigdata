@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.platform</groupId>
+	<artifactId>jstorm</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>jstorm</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.alibaba.jstorm</groupId>
+		    <artifactId>jstorm-core</artifactId>
+		    <version>2.1.1</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.storm</groupId>
+		    <artifactId>storm-hdfs</artifactId>
+		    <version>0.9.6</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.storm</groupId>
+		    <artifactId>storm-kafka</artifactId>
+		    <version>0.9.6</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.kafka</groupId>
+		    <artifactId>kafka_2.11</artifactId>
+		    <version>0.10.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch-hadoop</artifactId>
+			<version>2.3.4</version>
+		</dependency>
+		
+		<!-- Elastic Search依赖包 -->
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>2.3.4</version>
+		</dependency>
+		
+		<!--
+		<dependency>
+		    <groupId>org.apache.storm</groupId>
+		    <artifactId>storm-core</artifactId>
+		    <version>0.9.6</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.storm</groupId>
+		    <artifactId>storm-starter</artifactId>
+		    <version>0.9.4</version>
+		</dependency>
+		
+		-->
+		
+	</dependencies>
+</project>
