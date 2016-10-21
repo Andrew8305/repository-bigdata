@@ -390,7 +390,7 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.2</version>
         </dependency>
 
 		<!-- JStorm依赖包 -->
@@ -426,6 +426,30 @@
 		</dependency>
 
         <!-- Titan依赖包 -->
+        <dependency>
+		    <groupId>com.thinkaurelius.titan</groupId>
+		    <artifactId>titan-core</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.thinkaurelius.titan</groupId>
+		    <artifactId>titan-cassandra</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.thinkaurelius.titan</groupId>
+		    <artifactId>titan-hbase</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.thinkaurelius.titan</groupId>
+		    <artifactId>titan-es</artifactId>
+		    <version>1.0.0</version>
+		</dependency>
+        
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-hadoop</artifactId>
