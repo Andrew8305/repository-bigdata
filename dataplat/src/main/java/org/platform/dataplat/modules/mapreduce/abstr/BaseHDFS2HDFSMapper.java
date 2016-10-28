@@ -9,7 +9,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
-import org.platform.utils.IDGenerator;
+import org.platform.dataplat.utils.generator.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public abstract class BaseHDFS2HDFSMapper extends Mapper<LongWritable, Text, Nul
 			handle(original, correct, incorrect);
 			if (!correct.isEmpty()) {
 				String id = IDGenerator.generateByMapValues(correct, "insertTime",
-						"updateTime", "sourceFile");
+                        "updateTime", "sourceFile");
 				correct.put("_id", id);
 				multipleOutputs.write(NullWritable.get(), new Text(gson.toJson(correct)), "correct");
 			}

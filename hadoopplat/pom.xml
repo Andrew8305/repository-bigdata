@@ -2,144 +2,148 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.platform</groupId>
-  <artifactId>hadoopplat</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<groupId>org.platform</groupId>
+	<artifactId>hadoopplat</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-  <name>hadoopplat</name>
-  <url>http://maven.apache.org</url>
+	<name>hadoopplat</name>
+	<url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <hadoop.version>2.7.2</hadoop.version>
-    <eshadoop.version>2.3.2</eshadoop.version>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<hadoop.version>2.7.2</hadoop.version>
+		<eshadoop.version>2.3.2</eshadoop.version>
+	</properties>
 
-  <dependencies>
-  
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-common</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-hdfs</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-client</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-annotations</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-auth</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-mapreduce-client-common</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-yarn-common</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.hadoop</groupId>
-	    <artifactId>hadoop-yarn-server-common</artifactId>
-	    <version>${hadoop.version}</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>org.elasticsearch</groupId>
-		<artifactId>elasticsearch-hadoop</artifactId>
-		<version>${eshadoop.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>org.apache.hive</groupId>
-    			<artifactId>hive-exec</artifactId>
-			</exclusion>
-		</exclusions>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	    <version>3.4</version>
-	</dependency>
+	<dependencies>
+		<!-- JUnit依赖包 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
 
-	<!-- 
-	<dependency>
-	    <groupId>org.elasticsearch</groupId>
-	    <artifactId>elasticsearch-hadoop-mr</artifactId>
-	    <version>2.3.2</version>
-	</dependency>
-    -->
-    
-    <!-- Elastic Search依赖包 -->
-	<dependency>
-		<groupId>org.elasticsearch</groupId>
-		<artifactId>elasticsearch</artifactId>
-		<version>2.3.1</version>
-		<exclusions>
-			<exclusion>
-				<groupId>com.google.guava</groupId>
-	    		<artifactId>guava</artifactId>	
-			</exclusion>
-		</exclusions>
-	</dependency>
+		<dependency>  
+		    <groupId>jdk.tools</groupId>  
+		    <artifactId>jdk.tools</artifactId>  
+		    <version>1.8</version>  
+		    <scope>system</scope>  
+		    <systemPath>C:/Program Files/Java/jdk1.8.0_101/lib/tools.jar</systemPath>  
+		</dependency> 
+		
+		<!-- Hadoop依赖包 -->
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
 
-	<!-- Gson依赖包 -->
-	<dependency>
-		<groupId>com.google.code.gson</groupId>
-		<artifactId>gson</artifactId>
-		<version>2.3.1</version>
-	</dependency>
-	
-	<!-- Guava依赖包 -->
-	<dependency>
-	    <groupId>com.google.guava</groupId>
-	    <artifactId>guava</artifactId>
-	    <version>18.0</version>
-	</dependency>
-    
-  </dependencies>
-  
-  <build>
-  	<plugins>
-  		<!-- compiler plugin -->
-		<plugin>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<configuration>
-				<source>1.7</source>
-				<target>1.7</target>
-				<encoding>${project-sourceEncoding}</encoding>
-			</configuration>
-		</plugin>
-  	</plugins>
-  </build>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-client</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-annotations</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-auth</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-mapreduce-client-common</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-yarn-common</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-yarn-server-common</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch-hadoop</artifactId>
+			<version>${eshadoop.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hive</groupId>
+					<artifactId>hive-exec</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>
+
+		<!-- <dependency> <groupId>org.elasticsearch</groupId> <artifactId>elasticsearch-hadoop-mr</artifactId> 
+			<version>2.3.2</version> </dependency> -->
+
+		<!-- Elastic Search依赖包 -->
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>2.3.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- Gson依赖包 -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+
+		<!-- Guava依赖包 -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- compiler plugin -->
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>${project-sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
   
 </project>

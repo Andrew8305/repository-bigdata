@@ -2,15 +2,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.platform</groupId>
-	<artifactId>dataplat</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+  <groupId>org.platform</groupId>
+  <artifactId>titan</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-	<name>dataplat</name>
-	<url>http://maven.apache.org</url>
-	
-	<repositories>
+  <name>titan</name>
+  <url>http://maven.apache.org</url>
+
+  <repositories>
 		<repository>
 	        <id>Public</id>
 	        <name>Public Repositories</name>
@@ -274,6 +274,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hadoop.version>2.7.2</hadoop.version>
+        <hbase.version>1.2.3</hbase.version>
+        <titan.version>1.0.0</titan.version>
 	</properties>
 
 	<dependencies>
@@ -292,6 +294,13 @@
 		    <scope>system</scope>  
 		    <systemPath>C:/Program Files/Java/jdk1.8.0_101/lib/tools.jar</systemPath>  
 		</dependency> 
+		
+		<!-- SQLServer依赖包 -->
+        <dependency>
+		    <groupId>com.microsoft.sqlserver</groupId>
+		    <artifactId>sqljdbc4</artifactId>
+		    <version>4.0</version>
+		</dependency>
 		
 		<!-- slf4j依赖包 -->
 		<dependency>
@@ -336,7 +345,7 @@
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
-			<version>2.3.4</version>
+			<version>1.5.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
@@ -344,14 +353,7 @@
                 </exclusion>
             </exclusions>
 		</dependency>
-
-        <!-- ES Hadoop依赖包 -->
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-hadoop</artifactId>
-            <version>2.3.4</version>
-        </dependency>
-
+		
         <!-- Hadoop依赖报 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
@@ -405,106 +407,74 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-common</artifactId>
-            <version>1.2.3</version>
+            <version>${hbase.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-server</artifactId>
-            <version>1.2.3</version>
+            <version>${hbase.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
-            <version>1.2.3</version>
+            <version>${hbase.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-protocol</artifactId>
-            <version>1.2.3</version>
+            <version>${hbase.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-annotations</artifactId>
-            <version>1.2.3</version>
+            <version>${hbase.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-hadoop2-compat</artifactId>
-            <version>1.2.3</version>
+            <version>${hbase.version}</version>
         </dependency>
-
-		<!-- JStorm依赖包 -->
-		<dependency>
-		    <groupId>com.alibaba.jstorm</groupId>
-		    <artifactId>jstorm-core</artifactId>
-		    <version>2.1.1</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.apache.storm</groupId>
-		    <artifactId>storm-hdfs</artifactId>
-		    <version>0.9.6</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.apache.storm</groupId>
-		    <artifactId>storm-kafka</artifactId>
-		    <version>0.9.6</version>
-		</dependency>
-		
-		<!-- Kafka依赖包 -->
-		<dependency>
-		    <groupId>org.apache.kafka</groupId>
-		    <artifactId>kafka_2.11</artifactId>
-		    <version>0.10.0.0</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.apache.kafka</groupId>
-		    <artifactId>kafka-clients</artifactId>
-		    <version>0.10.0.0</version>
-		</dependency>
 
         <!-- Titan依赖包 -->
         <dependency>
 		    <groupId>com.thinkaurelius.titan</groupId>
 		    <artifactId>titan-core</artifactId>
-		    <version>1.0.0</version>
+		    <version>${titan.version}</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>com.thinkaurelius.titan</groupId>
 		    <artifactId>titan-cassandra</artifactId>
-		    <version>1.0.0</version>
+		    <version>${titan.version}</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>com.thinkaurelius.titan</groupId>
 		    <artifactId>titan-hbase</artifactId>
-		    <version>1.0.0</version>
+		    <version>${titan.version}</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>com.thinkaurelius.titan</groupId>
 		    <artifactId>titan-es</artifactId>
-		    <version>1.0.0</version>
+		    <version>${titan.version}</version>
 		</dependency>
         
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-hadoop</artifactId>
-            <version>1.0.0</version>
+            <version>${titan.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-hadoop-core</artifactId>
-            <version>1.0.0</version>
+            <version>${titan.version}</version>
         </dependency>
 		
 	</dependencies>
@@ -522,6 +492,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
 	
 </project>
