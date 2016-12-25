@@ -19,6 +19,7 @@ public class BaseES2HDFSJob extends BaseJob {
 	 * 参数3：HDFS输出路径
 	 * 参数3：HDFS输出文件记录分割条数
 	 */
+	@Override
 	public int run(String[] args) throws Exception {
 		if (args.length != 4) {
 			LOG.error("parameters must be four!");

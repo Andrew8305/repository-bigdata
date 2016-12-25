@@ -4,12 +4,12 @@ import java.util.Map;
 
 import org.apache.hadoop.util.ToolRunner;
 import org.platform.modules.elasticsearch.base.BaseHDFS2HDFSJob;
-import org.platform.modules.elasticsearch.base.BaseHDFS2HDFSMapper;
+import org.platform.modules.elasticsearch.base.BaseHDFS2HDFSV1Mapper;
 
 public class TelecomDataCleanJob extends BaseHDFS2HDFSJob {
 
 	@Override
-	public Class<? extends BaseHDFS2HDFSMapper> getMapperClass() {
+	public Class<? extends BaseHDFS2HDFSV1Mapper> getMapperClass() {
 		return TelecomHDFS2HDFSMapper.class;
 	}
 	
@@ -24,7 +24,7 @@ public class TelecomDataCleanJob extends BaseHDFS2HDFSJob {
 
 }
 
-class TelecomHDFS2HDFSMapper extends BaseHDFS2HDFSMapper {
+class TelecomHDFS2HDFSMapper extends BaseHDFS2HDFSV1Mapper {
 
 	@Override
 	public void handle(Map<String, Object> original, Map<String, Object> correct, 

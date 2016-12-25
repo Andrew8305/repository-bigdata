@@ -2,11 +2,10 @@ package org.platform.modules.elasticsearch.base;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseJob extends Configured implements Tool {
+public abstract class BaseJob extends Configured implements Tool {
 	
 	protected Logger LOG = LoggerFactory.getLogger(getClass());
 	
@@ -20,9 +19,4 @@ public class BaseJob extends Configured implements Tool {
         return getClass().getSimpleName();
 	}
 
-	@Override
-	public int run(String[] args) throws Exception {
-		return ToolRunner.run(this, args);
-	}
-	
 }

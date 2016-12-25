@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -23,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class BaseHDFS2ESMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+public class BaseHDFS2ESV1Mapper extends Mapper<LongWritable, Text, Text, Text> {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(BaseHDFS2ESMapper.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BaseHDFS2ESV1Mapper.class);
 	
 	private TransportClient client = null;
 	
@@ -35,10 +36,12 @@ public class BaseHDFS2ESMapper extends Mapper<LongWritable, Text, NullWritable, 
 	
 	private Gson gson = null;
 	
-	private int batchSize = 1000;
+	private int batchSize = 10000;
 	
 	private List<Map<String, Object>> records = null;
-
+	
+	private Map<String, Text> mapRecords = null;
+	
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
 		super.setup(context);
@@ -46,6 +49,7 @@ public class BaseHDFS2ESMapper extends Mapper<LongWritable, Text, NullWritable, 
 		this.esType = (String) context.getConfiguration().get("esType");
 		this.gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		this.records = new ArrayList<Map<String, Object>>(this.batchSize);
+		this.mapRecords = new HashMap<String, Text>();
 		String esClusterName = (String) context.getConfiguration().get("esClusterName");
 		String esClusterIP = (String) context.getConfiguration().get("esClusterIP");
 		Settings settings = Settings.builder().put("cluster.name", esClusterName)
@@ -55,7 +59,7 @@ public class BaseHDFS2ESMapper extends Mapper<LongWritable, Text, NullWritable, 
 		String[] esClusterIPs = esClusterIP.contains(",") ? 
 				esClusterIP.split(",") : new String[]{esClusterIP};
 		for (int i = 0, len = esClusterIPs.length; i < len; i++) {
-			serverAddress.add(new EsServerAddress(esClusterIPs[i], 9301));
+			serverAddress.add(new EsServerAddress(esClusterIPs[i], 9300));
 		}
 		for (EsServerAddress address : serverAddress) {
 			client.addTransportAddress(new InetSocketTransportAddress(
@@ -72,16 +76,43 @@ public class BaseHDFS2ESMapper extends Mapper<LongWritable, Text, NullWritable, 
 	@Override
 	protected void map(LongWritable key, Text value, Context context)
 			throws IOException, InterruptedException {
-		Map<String, Object> record = gson.fromJson(value.toString(), Map.class);
-		records.add(record);
-		if (records.size() > this.batchSize) {
-			bulkInsertIndexTypeDatas(records);
-			records.clear();
+		try {
+			Map<String, Object> record = gson.fromJson(value.toString(), Map.class);
+			records.add(record);
+			mapRecords.put((String) record.get("_id"), new Text(value.toString()));
+			if (records.size() > this.batchSize) {
+				List<String> notExistIds = bulkInsertIndexTypeDatas(records);
+				for (int i = 0, len = notExistIds.size(); i < len; i++) {
+					context.write(new Text(notExistIds.get(i)), mapRecords.get(notExistIds.get(i)));
+				}
+				records.clear();
+				mapRecords.clear();
+			}
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 	
-	private void bulkInsertIndexTypeDatas(List<Map<String, Object>> datas) {
-		if (null == datas || datas.isEmpty()) return;
+	@Override
+	protected void cleanup(Context context) throws IOException,InterruptedException {
+		super.cleanup(context);
+		if (!records.isEmpty()) {
+			List<String> notExistIds = bulkInsertIndexTypeDatas(records);
+			for (int i = 0, len = notExistIds.size(); i < len; i++) {
+				context.write(new Text(notExistIds.get(i)), mapRecords.get(notExistIds.get(i)));
+			}
+			records.clear();
+			mapRecords.clear();
+		}
+		client.close();
+	}
+	
+	/**
+	 * 批量插入ES
+	 * @param datas
+	 */
+	private List<String> bulkInsertIndexTypeDatas(List<Map<String, Object>> datas) {
+		if (null == datas || datas.isEmpty()) return new ArrayList<String>();
 		BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
 		IndexRequestBuilder irb = null;
 		Map<String, Object> source = null;
@@ -100,17 +131,18 @@ public class BaseHDFS2ESMapper extends Mapper<LongWritable, Text, NullWritable, 
 		if (bulkResponse.hasFailures()) {
 			LOG.info(bulkResponse.buildFailureMessage());
 		}
+		List<String> notExistIds = new ArrayList<String>();
+		BulkItemResponse[] bulkItemResponses = bulkResponse.getItems();
+		for (int i = 0, len = bulkItemResponses.length; i < len; i++) {
+			BulkItemResponse bulkItemResponse = bulkItemResponses[i];
+			long version = bulkItemResponse.getVersion();
+			if (version == 1) {
+				notExistIds.add(bulkItemResponse.getId());
+			}
+		}
+		return notExistIds;
 	}
 
-	@Override
-	protected void cleanup(Context context) throws IOException,InterruptedException {
-		super.cleanup(context);
-		if (!records.isEmpty()) {
-			bulkInsertIndexTypeDatas(records);
-			records.clear();
-		}
-	}
-	
 }
 
 class EsServerAddress implements Serializable {

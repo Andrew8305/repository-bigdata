@@ -1,7 +1,6 @@
 package org.platform.modules.elasticsearch.base;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -9,7 +8,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public class BaseHDFS2ESJob extends BaseJob {
+public class BaseHDFS2ESV2Job extends BaseJob {
 	
 	/**
 	 * 参数1：ES Index
@@ -18,6 +17,7 @@ public class BaseHDFS2ESJob extends BaseJob {
 	 * 参数4：ES 集群IP
 	 * 参数5：HDFS输入路径
 	 */
+	@Override
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		conf.setBoolean("mapreduce.map.speculative", false); 
@@ -28,18 +28,25 @@ public class BaseHDFS2ESJob extends BaseJob {
 		conf.set("esClusterName", args[2]); 
 		conf.set("esClusterIP", args[3]); 
 		String[] oArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-		if (oArgs.length != 5) {
-			LOG.error("error");
+		if (oArgs.length < 5) {
+			LOG.error("error! need 5 input parameters!");
 			System.exit(2);
 		}
-		Job job = Job.getInstance(conf, "BaseHDFS2ESJob");
-		job.setJarByClass(BaseHDFS2ESJob.class);
-		job.setMapperClass(BaseHDFS2ESMapper.class);
+		Job job = Job.getInstance(conf, getJobName());
+		job.setJarByClass(BaseHDFS2ESV2Job.class);
+		job.setMapperClass(BaseHDFS2ESV2Mapper.class);
 		job.setMapOutputKeyClass(NullWritable.class);
 		job.setMapOutputValueClass(Text.class);
+		
 		job.setOutputFormatClass(NullOutputFormat.class);
 		
-		FileInputFormat.addInputPath(job, new Path(oArgs[4]));
+		int args_len = oArgs.length;
+		StringBuilder inputPaths = new StringBuilder();
+		for (int i = 4; i < args_len; i++) {
+			inputPaths.append(oArgs[i]).append(",");
+		}
+		if (inputPaths.length() > 0) inputPaths.deleteCharAt(inputPaths.length() - 1);
+		FileInputFormat.setInputPaths(job, inputPaths.toString());
 		
 		return job.waitForCompletion(true) ? SUCCESS : FAILURE;
 	}

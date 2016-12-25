@@ -18,38 +18,42 @@ import com.google.gson.GsonBuilder;
 
 public abstract class BaseHDFS2HDFSMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
 	
-	private Logger LOG = LoggerFactory.getLogger(BaseHDFS2HDFSMapper.class);
+	protected Logger LOG = LoggerFactory.getLogger(getClass());
 	
 	protected Gson gson = null;
 	
-	private MultipleOutputs<NullWritable, Text> multipleOutputs = null;
+	protected MultipleOutputs<NullWritable, Text> multipleOutputs = null;
 
 	@Override
 	protected void setup(Context context) throws IOException, InterruptedException {
 		super.setup(context);
-		multipleOutputs = new MultipleOutputs<NullWritable, Text>(context);//NullWritable 实现方法为空实现
+		multipleOutputs = new MultipleOutputs<NullWritable, Text>(context);
 		this.gson = new GsonBuilder().serializeSpecialFloatingPointValues()
 				.setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-		
 	}
 
 	@Override
 	public void run(Context context) throws IOException, InterruptedException {
 		super.run(context);
 	}
+	
+	/**
+	 * 统一输入数据的格式
+	 * @param inputRecord
+	 * @return
+	 */
+	public abstract Map<String, Object> extractInputRecord(String inputRecord);
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void map(LongWritable key, Text value, Context context)
-			throws IOException, InterruptedException {
+	protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		try {
-			Map<String, Object> original = gson.fromJson(value.toString(), Map.class);
+			Map<String, Object> original = extractInputRecord(value.toString());
+			if ("sourceFile".equalsIgnoreCase(String.valueOf(original.get("sourceFile")))) return;
 			Map<String, Object> correct = new HashMap<String, Object>();
 			Map<String, Object> incorrect = new HashMap<String, Object>();
 			handle(original, correct, incorrect);
 			if (!correct.isEmpty()) {
-				String id = IDGenerator.generateByMapValues(correct, "insertTime",
-						"updateTime", "sourceFile");
+				String id = IDGenerator.generateByMapValues(correct, "insertTime", "updateTime", "sourceFile");
 				correct.put("_id", id);
 				multipleOutputs.write(NullWritable.get(), new Text(gson.toJson(correct)), "correct");
 			}
