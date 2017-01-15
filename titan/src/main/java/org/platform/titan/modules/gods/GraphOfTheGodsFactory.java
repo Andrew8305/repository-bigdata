@@ -56,17 +56,8 @@ public class GraphOfTheGodsFactory {
 		TitanGraph graph = builder.open();
 		return graph;
 	}
-
-	public static void loadWithoutMixedIndex(final TitanGraph graph,
-			boolean uniqueNameCompositeIndex) {
-		load(graph, null, uniqueNameCompositeIndex);
-	}
-
-	public static void load(final TitanGraph graph) {
-		load(graph, INDEX_NAME, true);
-	}
-
-	public static void load(final TitanGraph graph, String mixedIndexName,
+	
+	public static void createSchema(final TitanGraph graph, String mixedIndexName,
 			boolean uniqueNameCompositeIndex) {
 		// Create Schema
 		TitanManagement mgmt = graph.openManagement();
@@ -99,7 +90,20 @@ public class GraphOfTheGodsFactory {
 		mgmt.makeVertexLabel("human").make();
 		mgmt.makeVertexLabel("monster").make();
 		mgmt.commit();
+	}
 
+
+	public static void loadWithoutMixedIndex(final TitanGraph graph,
+			boolean uniqueNameCompositeIndex) {
+		load(graph, null, uniqueNameCompositeIndex);
+	}
+
+	public static void load(final TitanGraph graph) {
+		load(graph, INDEX_NAME, true);
+	}
+	
+	public static void load(final TitanGraph graph, String mixedIndexName,
+			boolean uniqueNameCompositeIndex) {
 		TitanTransaction tx = graph.newTransaction();
 		// vertices
 		Vertex saturn = tx.addVertex(T.label, "titan", "name", "saturn", "age", 10000);
@@ -152,7 +156,7 @@ public class GraphOfTheGodsFactory {
         //得到 saturn的孙子节点  
         System.out.println(g.V(saturn).in("father").in("father").next().value("age"));  
   
-        GraphTraversal<Edge, Edge> a =  g.E().has("place", P.eq(Geoshape.point(38.1f, 23.7f)));  
+        GraphTraversal<Edge, Edge> a = g.E().has("place", P.eq(Geoshape.point(38.1f, 23.7f)));  
         System.out.println(a);  
         while(a.hasNext()){  
             Edge e = a.next();  
@@ -273,7 +277,8 @@ public class GraphOfTheGodsFactory {
 //		g.close();
 		
 		TitanGraph graph = GraphOfTheGodsFactory.create();
-//		load(graph);
+//		createSchema(graph, "mixIndex", true);
+		load(graph);
 		query(graph);
 		graph.close();
 	}

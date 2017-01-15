@@ -268,6 +268,20 @@
 			<name>Typesafe Repository</name>
 			<url>http://repo.typesafe.com/typesafe/releases/</url>
 		</repository>
+		
+		<!--  
+		<repository>
+	        <id>maven-restlet</id>
+	        <name>Restlet repository</name>
+	        <url>https://maven.restlet.com</url>
+	    </repository>
+	    -->
+	    
+	    <repository> 
+            <id>maven-restlet</id> 
+            <name>Public Online Restlet Repository</name> 
+            <url>http://maven.restlet.org</url> 
+        </repository> 
 
 	</repositories>
 
@@ -276,6 +290,7 @@
         <hadoop.version>2.7.2</hadoop.version>
         <hbase.version>1.2.3</hbase.version>
         <titan.version>1.0.0</titan.version>
+        <restlet-version>2.3.9</restlet-version> 
 	</properties>
 
 	<dependencies>
@@ -476,6 +491,21 @@
             <artifactId>titan-hadoop-core</artifactId>
             <version>${titan.version}</version>
         </dependency>
+        
+        <!-- RESTLET 依赖包  -->
+        <!--  
+        <dependency>
+	        <groupId>org.restlet.jse</groupId>
+	        <artifactId>org.restlet</artifactId>
+	        <version>${restlet-version}</version>
+	    </dependency>
+    
+	    <dependency>
+	        <groupId>org.restlet.jse</groupId>
+	        <artifactId>org.restlet.ext.jackson</artifactId>
+	        <version>${restlet-version}</version> 
+	    </dependency>
+		-->
 		
 	</dependencies>
 	
