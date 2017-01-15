@@ -36,7 +36,7 @@ public class BaseHDFS2ESV1Mapper extends Mapper<LongWritable, Text, Text, Text> 
 	
 	private Gson gson = null;
 	
-	private int batchSize = 10000;
+	private int batchSize = 1000;
 	
 	private List<Map<String, Object>> records = null;
 	
@@ -47,6 +47,7 @@ public class BaseHDFS2ESV1Mapper extends Mapper<LongWritable, Text, Text, Text> 
 		super.setup(context);
 		this.esIndex = (String) context.getConfiguration().get("esIndex");
 		this.esType = (String) context.getConfiguration().get("esType");
+		this.batchSize = Integer.parseInt(String.valueOf(context.getConfiguration().get("batchSize", "1000")));
 		this.gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		this.records = new ArrayList<Map<String, Object>>(this.batchSize);
 		this.mapRecords = new HashMap<String, Text>();

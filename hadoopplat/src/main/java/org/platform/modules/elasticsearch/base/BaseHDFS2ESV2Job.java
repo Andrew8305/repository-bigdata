@@ -15,7 +15,8 @@ public class BaseHDFS2ESV2Job extends BaseJob {
 	 * 参数2：ES Type
 	 * 参数3：ES 集群名称
 	 * 参数4：ES 集群IP
-	 * 参数5：HDFS输入路径
+	 * 参数5：ES 批量导入大小
+	 * 参数6：HDFS输入路径
 	 */
 	@Override
 	public int run(String[] args) throws Exception {
@@ -27,9 +28,10 @@ public class BaseHDFS2ESV2Job extends BaseJob {
 		conf.set("esType", args[1]); 
 		conf.set("esClusterName", args[2]); 
 		conf.set("esClusterIP", args[3]); 
+		conf.set("batchSize", args[4]); 
 		String[] oArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-		if (oArgs.length < 5) {
-			LOG.error("error! need 5 input parameters!");
+		if (oArgs.length < 6) {
+			LOG.error("error! need 6 input parameters!");
 			System.exit(2);
 		}
 		Job job = Job.getInstance(conf, getJobName());
@@ -42,7 +44,7 @@ public class BaseHDFS2ESV2Job extends BaseJob {
 		
 		int args_len = oArgs.length;
 		StringBuilder inputPaths = new StringBuilder();
-		for (int i = 4; i < args_len; i++) {
+		for (int i = 5; i < args_len; i++) {
 			inputPaths.append(oArgs[i]).append(",");
 		}
 		if (inputPaths.length() > 0) inputPaths.deleteCharAt(inputPaths.length() - 1);
