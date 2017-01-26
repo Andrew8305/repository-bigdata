@@ -5,9 +5,9 @@ import java.util.Map;
 
 public enum DateFormatter {
 	
-	TIME("yyyyMMdd HH:mm:ss"), 
-	DATE("yyyyMMdd"), 
-	MONTH("yyyyMM");
+	TIME("yyyy-MM-dd HH:mm:ss"), 
+	DATE("yyyy-MM-dd"), 
+	MONTH("yyyy-MM");
 
 	private String formatStr;
 	private static Map<String, ThreadLocal<java.text.SimpleDateFormat>> sdfMap = new HashMap<String, ThreadLocal<java.text.SimpleDateFormat>>();

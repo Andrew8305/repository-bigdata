@@ -1,58 +1,61 @@
 package org.platform.modules.elasticsearch.base;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public abstract class BaseHDFS2HDFSJob extends BaseJob {
+public abstract class BaseHDFS2MongoJob extends BaseJob {
 	
 	/**
 	 * 获取Mapper类
 	 * @return
 	 */
-	public abstract Class<? extends BaseHDFS2HDFSMapper> getMapperClass();
+	public abstract Class<? extends BaseHDFS2MongoMapper> getMapperClass();
 	
 	/**
-	 * 参数1：HDFS输入路径
-	 * 参数2：HDFS输出路径
+	 * 参数1：Mongo 数据库名称
+	 * 参数2：Mongo 数据表名称
+	 * 参数3：批量大小
+	 * 参数5：Map分割大小，单位M
+	 * 参数4：HDFS输入路径
 	 */
 	@Override
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		conf.setBoolean("mapreduce.map.speculative", false); 
 		conf.setBoolean("mapreduce.reduce.speculative", false); 
-		conf.set("mapreduce.framework.name", "yarn"); 
+		conf.set("mapreduce.framework.name", "yarn");
 		conf.set("hadoop.job.user", "dataplat"); 
-		//主要针对文本格式，JSON格式的可以随意设置这个属性
-		conf.set("column.metadata", args[0]);
+		conf.set("databaseName", args[0]);
+		conf.set("collectionName", args[1]); 
+		conf.set("batchSize", args[2]); 
+		conf.setLong("mapreduce.input.fileinputformat.split.maxsize", Long.parseLong(args[3]) * 1024 * 1024);
 		String[] oArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-		if (oArgs.length < 3) {
-			LOG.error("args error! need column metadata and input path and output path");
+		if (oArgs.length < 5) {
+			LOG.error("error! need 5 input parameters!");
 			System.exit(2);
 		}
 		Job job = Job.getInstance(conf, getJobName());
-		job.setJarByClass(getClass());
+		job.setJarByClass(BaseHDFS2MongoJob.class);
 		job.setMapperClass(getMapperClass());
 		job.setMapOutputKeyClass(NullWritable.class);
 		job.setMapOutputValueClass(Text.class);
-		job.setOutputFormatClass(TextOutputFormat.class);
+		
+		job.setOutputFormatClass(NullOutputFormat.class);
 		
 		int args_len = oArgs.length;
 		StringBuilder inputPaths = new StringBuilder();
-		for (int i = 1; i < (args_len - 1); i++) {
+		for (int i = 4; i < args_len; i++) {
 			inputPaths.append(oArgs[i]).append(",");
 		}
 		if (inputPaths.length() > 0) inputPaths.deleteCharAt(inputPaths.length() - 1);
 		FileInputFormat.setInputPaths(job, inputPaths.toString());
-		FileOutputFormat.setOutputPath(job, new Path(oArgs[args_len - 1]));
 		
 		return job.waitForCompletion(true) ? SUCCESS : FAILURE;
 	}
-	
+
 }

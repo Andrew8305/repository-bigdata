@@ -12,6 +12,7 @@ import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
+import org.platform.titan.modules.GraphUtils;
 
 import com.thinkaurelius.titan.core.Cardinality;
 import com.thinkaurelius.titan.core.Multiplicity;
@@ -19,6 +20,8 @@ import com.thinkaurelius.titan.core.PropertyKey;
 import com.thinkaurelius.titan.core.TitanEdge;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanIndexQuery;
+import com.thinkaurelius.titan.core.TitanIndexQuery.Result;
 import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.schema.ConsistencyModifier;
@@ -29,39 +32,34 @@ import com.thinkaurelius.titan.core.schema.TitanManagement.IndexBuilder;
 /**
  * Created by Wulin on 2016/10/26.
  */
-public class GraphOfQQQunFactory {
+public class QQQunRelationGraph {
 	
-	public static TitanGraph create() {
-		TitanFactory.Builder builder = TitanFactory.build();
-		builder.set("storage.backend", "hbase");
-        builder.set("storage.hostname", "host-115");
-        builder.set("storage.tablename", "titan");
-        builder.set("index.search.backend", "elasticsearch");
-        builder.set("index.search.hostname", "host-115");
-        builder.set("index.search.port", "9300");
-        builder.set("index.search.elasticsearch.interface", "TRANSPORT_CLIENT");
-        builder.set("index.search.elasticsearch.cluster-name", "cisiondata");
-        builder.set("index.search.elasticsearch.index-name", "titan");
-//      builder.set("index.search.directory", "/tmp/titan" + File.separator + "es");  
-        builder.set("index.search.elasticsearch.local-mode", false);  
-        builder.set("index.search.elasticsearch.client-only", "true");
-		TitanGraph graph = builder.open();
-		return graph;
-	}
-	
-	public static TitanGraph open(String configFile) {
+	public static TitanGraph buildTitanGraph(String configFile) {
 		return TitanFactory.open(configFile);
 	}
 	
-	public static void createSchema(TitanGraph graph) {
+	public static void buildSchema(TitanGraph graph) {
 		TitanManagement management = graph.openManagement();
+		
 		PropertyKey qqNum = management.containsPropertyKey("qqNum") ? management.getPropertyKey("qqNum") :
 				management.makePropertyKey("qqNum").dataType(Integer.class).cardinality(Cardinality.SINGLE).make();
-		if (management.containsGraphIndex("qqNum")) {
-			IndexBuilder qqNumIndexBuilder = management.buildIndex("qqNum", Vertex.class).addKey(qqNum);
-			qqNumIndexBuilder.unique();
+		System.out.println("contains qqNum index: " + management.containsGraphIndex("qqNum"));
+		if (!management.containsGraphIndex("qqNum")) {
+			IndexBuilder qqNumIndexBuilder = management.buildIndex("qqNum", Vertex.class).addKey(qqNum).unique();
 			TitanGraphIndex qqNumIndex = qqNumIndexBuilder.buildCompositeIndex();
 			management.setConsistency(qqNumIndex, ConsistencyModifier.LOCK);
+		} else {
+			TitanGraphIndex qqNumIndex = management.getGraphIndex("qqNum");
+			System.out.println("unique: " + qqNumIndex.isUnique());
+			System.out.println("mixed index: " + qqNumIndex.isMixedIndex());
+			System.out.println("composite index: " + qqNumIndex.isCompositeIndex());
+			System.out.println("backing index: " + qqNumIndex.getBackingIndex());
+			System.out.println("status: " + qqNumIndex.getIndexStatus(management.getPropertyKey("qqNum")));
+			PropertyKey[] propertyKeys = qqNumIndex.getFieldKeys();
+			for (PropertyKey propertyKey : propertyKeys) {
+				System.out.println(propertyKey.label() + ":" + propertyKey.dataType());
+			}
+//			management.updateIndex(index, SchemaAction.ENABLE_INDEX);
 		}
 		
 		if (!management.containsPropertyKey("age")) {
@@ -76,11 +74,22 @@ public class GraphOfQQQunFactory {
 		
 		PropertyKey qunNum = management.containsPropertyKey("qunNum") ? management.getPropertyKey("qunNum") :
 				management.makePropertyKey("qunNum").dataType(Integer.class).cardinality(Cardinality.SINGLE).make();
-		if (management.containsGraphIndex("qunNum")) {
-			IndexBuilder qunNumIndexBuilder = management.buildIndex("qunNum", Vertex.class).addKey(qunNum);
-			qunNumIndexBuilder.unique();
+		if (!management.containsGraphIndex("qunNum")) {
+			IndexBuilder qunNumIndexBuilder = management.buildIndex("qunNum", Vertex.class).addKey(qunNum).unique();
 			TitanGraphIndex qunNumIndex = qunNumIndexBuilder.buildCompositeIndex();
 			management.setConsistency(qunNumIndex, ConsistencyModifier.LOCK);
+		} else {
+			TitanGraphIndex qunNumIndex = management.getGraphIndex("qunNum");
+			System.out.println("unique: " + qunNumIndex.isUnique());
+			System.out.println("mixed index: " + qunNumIndex.isMixedIndex());
+			System.out.println("composite index: " + qunNumIndex.isCompositeIndex());
+			System.out.println("backing index: " + qunNumIndex.getBackingIndex());
+			System.out.println("status: " + qunNumIndex.getIndexStatus(management.getPropertyKey("qunNum")));
+			PropertyKey[] propertyKeys = qunNumIndex.getFieldKeys();
+			for (PropertyKey propertyKey : propertyKeys) {
+				System.out.println(propertyKey.label() + ":" + propertyKey.dataType());
+			}
+//			management.updateIndex(qunNumIndex, SchemaAction.ENABLE_INDEX);
 		}
 		
 		if (!management.containsPropertyKey("title")) {
@@ -117,22 +126,22 @@ public class GraphOfQQQunFactory {
 		management.commit();
 	}
 	
-	public static void load(TitanGraph graph) {
+	public static void loadData(TitanGraph graph) {
 		TitanTransaction transaction = graph.newTransaction();
 		
-		Vertex qq_1 = transaction.addVertex(T.label, "qq", "qqNum", 10000011, "age", 21, "nickname", "zhangsan01", "gender", 1);
-		Vertex qq_2 = transaction.addVertex(T.label, "qq", "qqNum", 10000012, "age", 22, "nickname", "zhangsan02", "gender", 0);
-		Vertex qq_3 = transaction.addVertex(T.label, "qq", "qqNum", 10000013, "age", 23, "nickname", "zhangsan03", "gender", 0);
-		Vertex qq_4 = transaction.addVertex(T.label, "qq", "qqNum", 10000014, "age", 24, "nickname", "zhangsan04", "gender", 1);
-		Vertex qq_5 = transaction.addVertex(T.label, "qq", "qqNum", 10000015, "age", 25, "nickname", "zhangsan05", "gender", 0);
-		Vertex qq_6 = transaction.addVertex(T.label, "qq", "qqNum", 10000016, "age", 26, "nickname", "zhangsan06", "gender", 1);
-		Vertex qq_7 = transaction.addVertex(T.label, "qq", "qqNum", 10000017, "age", 27, "nickname", "zhangsan07", "gender", 1);
-		Vertex qq_8 = transaction.addVertex(T.label, "qq", "qqNum", 10000018, "age", 28, "nickname", "zhangsan08", "gender", 0);
-		Vertex qq_9 = transaction.addVertex(T.label, "qq", "qqNum", 10000019, "age", 29, "nickname", "zhangsan09", "gender", 1);
+		Vertex qq_1 = transaction.addVertex(T.label, "qq", "qqNum", 10000111, "age", 21, "nickname", "zhangsan01", "gender", 1);
+		Vertex qq_2 = transaction.addVertex(T.label, "qq", "qqNum", 10000112, "age", 22, "nickname", "zhangsan02", "gender", 0);
+		Vertex qq_3 = transaction.addVertex(T.label, "qq", "qqNum", 10000113, "age", 23, "nickname", "zhangsan03", "gender", 0);
+		Vertex qq_4 = transaction.addVertex(T.label, "qq", "qqNum", 10000114, "age", 24, "nickname", "zhangsan04", "gender", 1);
+		Vertex qq_5 = transaction.addVertex(T.label, "qq", "qqNum", 10000115, "age", 25, "nickname", "zhangsan05", "gender", 0);
+		Vertex qq_6 = transaction.addVertex(T.label, "qq", "qqNum", 10000116, "age", 26, "nickname", "zhangsan06", "gender", 1);
+		Vertex qq_7 = transaction.addVertex(T.label, "qq", "qqNum", 10000117, "age", 27, "nickname", "zhangsan07", "gender", 1);
+		Vertex qq_8 = transaction.addVertex(T.label, "qq", "qqNum", 10000118, "age", 28, "nickname", "zhangsan08", "gender", 0);
+		Vertex qq_9 = transaction.addVertex(T.label, "qq", "qqNum", 10000119, "age", 29, "nickname", "zhangsan09", "gender", 1);
 		
-		Vertex qun_1 = transaction.addVertex(T.label, "qun", "qunNum", 1011, "title", "技术交流11", "text", "技术交流", "createDate", "2012-01-01");
-		Vertex qun_2 = transaction.addVertex(T.label, "qun", "qunNum", 1012, "title", "技术交流12", "text", "技术交流", "createDate", "2013-01-01");
-		Vertex qun_3 = transaction.addVertex(T.label, "qun", "qunNum", 1013, "title", "技术交流13", "text", "技术交流", "createDate", "2014-01-01");
+		Vertex qun_1 = transaction.addVertex(T.label, "qun", "qunNum", 1111, "title", "技术交流11", "text", "技术交流", "createDate", "2012-01-01");
+		Vertex qun_2 = transaction.addVertex(T.label, "qun", "qunNum", 1112, "title", "技术交流12", "text", "技术交流", "createDate", "2013-01-01");
+		Vertex qun_3 = transaction.addVertex(T.label, "qun", "qunNum", 1113, "title", "技术交流13", "text", "技术交流", "createDate", "2014-01-01");
 		
 		qq_1.addEdge("contained", qun_1);
 		qq_2.addEdge("contained", qun_1);
@@ -157,7 +166,7 @@ public class GraphOfQQQunFactory {
 		transaction.commit();
 	}
 	
-	public static void load_01() {
+	public static void loadData_01() {
 		BaseConfiguration baseConfiguration = new BaseConfiguration();
         baseConfiguration.setProperty("storage.backend", "hbase");
         baseConfiguration.setProperty("storage.hostname", "host-115");
@@ -193,32 +202,23 @@ public class GraphOfQQQunFactory {
         graph.close();
 	}
 	
-	public static void load_02() {
-		TitanFactory.Builder builder = TitanFactory.build();
-		builder.set("storage.backend", "hbase");
-        builder.set("storage.hostname", "host-115");
-        builder.set("storage.tablename", "titan");
-        builder.set("index.search.backend", "elasticsearch");
-        builder.set("index.search.hostname", "host-115");
-        builder.set("index.search.elasticsearch.interface", "TRANSPORT_CLIENT");
-        builder.set("index.search.elasticsearch.cluster-name", "cisiondata");
-        builder.set("index.search.elasticsearch.client-only", "true");
-		TitanGraph graph = builder.open();
+	public static void loadData_02() {
+		TitanGraph graph = GraphUtils.getInstance().getGraph();
 		
 		Vertex qq_01 = graph.addVertex("qq");
-        qq_01.property("qqNum", 1000000011);
+        qq_01.property("qqNum", 1000000111);
         qq_01.property("age", 18);
         qq_01.property("nickname", "zhangsan");
         qq_01.property("gender", 1);
         
         Vertex qq_02 = graph.addVertex("qq");
-        qq_02.property("qqNum", 1000000012);
+        qq_02.property("qqNum", 1000000112);
         qq_02.property("age", 20);
         qq_02.property("nickname", "lisi");
         qq_02.property("gender", 0);
         
         Vertex qqqun_01 = graph.addVertex("qqqun");
-        qqqun_01.property("qunNum", 1000011);
+        qqqun_01.property("qunNum", 1000111);
         qqqun_01.property("title", "技术交流01");
         
         qq_01.addEdge("included", qqqun_01);
@@ -241,7 +241,7 @@ public class GraphOfQQQunFactory {
         graph.close();
 	}
 	
-	public static void query(TitanGraph graph) {
+	public static void queryData(TitanGraph graph) {
 //		GraphTraversalSource g = graph.traversal();
 //		System.out.println(g.V().has("qunNum", 101).next());
 		Iterator<TitanVertex> vertices = graph.query().vertices().iterator();
@@ -274,7 +274,7 @@ public class GraphOfQQQunFactory {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void query_01(TitanGraph graph) {
+	public static void queryData_01(TitanGraph graph) {
 		System.out.println("$$$$$$");
 		System.out.println(graph.query().has("qqNum", 10000011).vertices().iterator());
 //		Iterator<TitanVertex> iterator = graph.query().has("nickname", "zhangsan01").vertices().iterator();
@@ -291,7 +291,7 @@ public class GraphOfQQQunFactory {
 		}
 	}
 	
-	public static void query_02(TitanGraph graph) {
+	public static void queryData_02(TitanGraph graph) {
 		System.out.println("$$$$$$");
 		GraphTraversalSource g = graph.traversal();
 		List<Vertex> verteies = g.V().has("age", 22).iterate().toList();
@@ -319,13 +319,23 @@ public class GraphOfQQQunFactory {
 		}
 	}
 	
+	public static void queryData_03(TitanGraph graph) {
+		TitanIndexQuery indexQuery = graph.indexQuery("personIndex", "10000111");
+		Iterator<TitanIndexQuery.Result<TitanVertex>> iterator = indexQuery.vertices().iterator();
+		while (iterator.hasNext()) {
+			Result<TitanVertex> vertex = iterator.next();
+			System.out.println("vertex label: " + vertex.getElement().label());
+		}
+	}
+	
     public static void main(String[] args) {
-        TitanGraph graph = GraphOfQQQunFactory.create();
-        createSchema(graph);
-//        load(graph);
-//        query(graph);
-//        query_01(graph);
-        query_02(graph);
+        TitanGraph graph = GraphUtils.getInstance().getGraph();
+        buildSchema(graph);
+//        loadData(graph);
+//        queryData(graph);
+//        queryData_01(graph);
+//        queryData_02(graph);
+        queryData_03(graph);
         graph.close();
     }
     
